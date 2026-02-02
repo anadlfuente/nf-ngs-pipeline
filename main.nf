@@ -2,7 +2,7 @@
 workflow {
 
 
-    // Channel for input samples
+    // Channel for input samples (prepare input for trimming)
     channel.fromPath(params.input_csv)
         .splitCsv(header: false,sep: '\t')
         .map { row ->
@@ -16,6 +16,18 @@ workflow {
         }
         .set { sample_channel }
 
+    // Channel to count number of samples per experiment
+    channel.fromPath(params.input_csv)
+        .splitCsv(header: false, sep: '\t')
+        .map { row ->
+            def exp = row[3]
+            tuple(exp, row[0])  // (experimento, nombre_muestra)
+        }
+        .groupTuple(by: 0)  // group by experiment
+        .map { exp, samples ->
+            tuple(exp, samples.size())  // emit (exp, sample_count)
+        }
+        .set { exp_sample_counts } // exit [(exp,num_counts), ...]
     
     //Run Trim galore for trimming adapters and low quality reads
     TRIM_GALORE(sample_channel)
@@ -23,16 +35,21 @@ workflow {
     // Run STAR for alignment
     STAR_TWOPASS_1(TRIM_GALORE.out.trim_fastqs,
         file(params.refDir),
-
+        file(params.gtf)
     )
 
-    // Group all SJ out files for star two pass genome generation
-    channel.fromPath("${params.outdir}/NGSalign_output/STAR/Pass1/*/*.SJ.out.tab")
-        .map { file ->
-            def exp = file.getParent().getName()
-            tuple(exp, file)
+    STAR_TWOPASS_1.out.sj_out
+        .groupTuple(by: 0)       // agrupa por experimento
+        .join(exp_sample_counts) // (exp, [sj_outs]) join con (exp, count)
+        .map { exp, sj_outs, count ->
+            // Aseguramos que llegaron todas las muestras
+            if (sj_outs.size() == count) {
+                tuple(exp, sj_outs)
+            } else {
+                null // no pasa nada hasta que estén todas
+            }
         }
-        .groupTuple(by: 0) // group SJ.out.tab per experiment
+        .filter { it != null }
         .set { sj_outs_channel_exp }
 
     //Run STAR two pass genome generation
