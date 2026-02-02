@@ -10,6 +10,7 @@ process STAR_TWOPASS_1 {
     tuple val(meta), path(fastq1), path(fastq2)
     path refDir
     path gtf
+    val threads
 
     output:
     tuple val(meta), path("${meta.sample}.SJ.out.tab"), emit: sj_out
@@ -20,7 +21,7 @@ process STAR_TWOPASS_1 {
 
     script:
     """
-	STAR --genomeLoad NoSharedMemory --genomeDir ${refDir} --readFilesCommand ${fastq1.toString().endsWith('.gz') ? 'zcat' : 'cat'} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${params.threads} --outSAMtype None --outFileNamePrefix ${meta.sample}. --outSAMstrandField intronMotif
+	STAR --genomeLoad NoSharedMemory --genomeDir ${refDir} --readFilesCommand ${fastq1.toString().endsWith('.gz') ? 'zcat' : 'cat'} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${threads} --outSAMtype None --outFileNamePrefix ${meta.sample}. --outSAMstrandField intronMotif
 
     """
 }

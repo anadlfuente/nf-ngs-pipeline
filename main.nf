@@ -35,7 +35,8 @@ workflow {
     // Run STAR for alignment
     STAR_TWOPASS_1(TRIM_GALORE.out.trim_fastqs,
         file(params.refDir),
-        file(params.gtf)
+        file(params.gtf),
+        val(params.threads)
     )
 
     STAR_TWOPASS_1.out.sj_out
@@ -54,7 +55,11 @@ workflow {
 
     //Run STAR two pass genome generation
     STAR_TWOPASS_GENOME(
-        sj_out_channel_exp
+        sj_out_channel_exp,
+        file(params.genome),
+        file(params.gtf),
+        val(params.read_length),
+        val(params.threads)
     )
 
     // Run STAR for alignment
