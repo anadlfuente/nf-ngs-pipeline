@@ -54,7 +54,16 @@ workflow {
         .filter { it != null }
         .set { sj_outs_channel_exp }
 
-    // Relate experimetn genome with sample for alignment step
+    //Run STAR two pass genome generation
+    STAR_TWOPASS_GENOME(
+        sj_outs_channel_exp,
+        file(params.genome),
+        file(params.gtf),
+        val(params.read_length),
+        val(params.threads),
+    )
+
+    // Relate experiment genome with sample for alignment step
     TRIM_GALORE.out.trim_fastqs
         .map { meta, fastq1, fastq2 ->
             tuple(meta.exp, meta, fastq1, fastq2) // Add experiment as key
@@ -65,18 +74,16 @@ workflow {
         }
         .set { star_passtwo_alignment_input }
 
-    //Run STAR two pass genome generation
-    STAR_TWOPASS_GENOME(
+    // Run STAR for alignment
+    STAR_TWOPASS_2(
         star_passtwo_alignment_input,
         file(params.genome),
         file(params.gtf),
         val(params.read_length),
-        val(params.threads)
-    )
-
-    // Run STAR for alignment
-    STAR_TWOPASS_2(
-        
+        val(params.threads),
+        val(params.PL),
+        val(params.LB),
+        val(params.maxRAM)
     )
     //Run RSeQC for calculate BAM stats
     RSeQC_BamStats(
