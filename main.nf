@@ -39,6 +39,7 @@ workflow {
         val(params.threads)
     )
 
+    // Prepare SJ.out.tab per experiment for genome generation
     STAR_TWOPASS_1.out.sj_out
         .groupTuple(by: 0)       // agrupa por experimento
         .join(exp_sample_counts) // (exp, [sj_outs]) join con (exp, count)
@@ -53,9 +54,20 @@ workflow {
         .filter { it != null }
         .set { sj_outs_channel_exp }
 
+    // Relate experimetn genome with sample for alignment step
+    TRIM_GALORE.out.trim_fastqs
+        .map { meta, fastq1, fastq2 ->
+            tuple(meta.exp, meta, fastq1, fastq2) // Add experiment as key
+        }.join (STAR_TWOPASS_GENOME.out.twopass_genome_dir)
+        .map { exp, sample_data, genome_dir ->
+            def (meta, fastq1, fastq2) = sample_data
+            tuple(meta, fastq1, fastq2, genome_dir)
+        }
+        .set { star_passtwo_alignment_input }
+
     //Run STAR two pass genome generation
     STAR_TWOPASS_GENOME(
-        sj_out_channel_exp,
+        star_passtwo_alignment_input,
         file(params.genome),
         file(params.gtf),
         val(params.read_length),
