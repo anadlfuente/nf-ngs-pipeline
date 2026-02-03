@@ -1,6 +1,16 @@
 
 workflow {
 
+    take:
+        ch_fasta = Channel.value(params.genome)
+        ch_gtf = Channel.value(params.gtf)
+        ch_threads = Channel.value(params.threads)
+        ch_star_index = Channel.value(params.refDir)
+        ch_read_length = Channel.value(params.read_length)
+        ch_pass = Channel.value(params.pass)
+        ch_maxram = Channel.value(params.maxRAM)
+        ch_lb = Channel.value(params.LB)
+        ch_pl = Channel.value(params.PL)
 
     // Channel for input samples (prepare input for trimming)
     channel.fromPath(params.input_csv)
