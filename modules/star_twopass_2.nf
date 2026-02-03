@@ -4,9 +4,7 @@ process STAR_TWOPASS_2 {
 
     conda '/data/programs/mambaforge/envs/NGSalign'
 
-    publishDir ("${params.outdir}/NGSalign_output/STAR/Pass2/${meta.sample}", mode: 'link')
-
-     input:
+    input:
     tuple val(meta), path(fastq1), path(fastq2), path(genome_dir)
     path gtf
     val read_length

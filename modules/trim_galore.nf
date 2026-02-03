@@ -11,10 +11,6 @@ process TRIM_GALORE {
         params.threads > 8  ? 2 : 1
     }
 
-
-    publishDir ("${params.outdir}/NGSalign_output/Trim_galore/${meta.sample}", mode: 'link')
-
-
     input:
     tuple val(meta), path(fastq1), path(fastq2)
 

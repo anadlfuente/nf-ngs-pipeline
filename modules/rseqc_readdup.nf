@@ -4,8 +4,6 @@ process RSeQC_inferexperiment {
 
     conda '/data/programs/mambaforge/envs/NGSalign'
 
-    publishDir ("${params.outdir}/NGSalign_output/RSeQC/${meta.sample}", mode: 'link')
-
     input:
     tuple val(meta), path(bam)
     path gtf

@@ -3,8 +3,6 @@ process STAR_TWOPASS_GENOME{
     tag "${exp}"
 
     conda '/data/programs/mambaforge/envs/NGSalign'
-
-    publishDir ("${params.outdir}/NGSalign_output/STAR/${exp}", mode: 'link')
     
     input: 
     tuple val(exp), path(sj_outs)
