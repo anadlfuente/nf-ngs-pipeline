@@ -20,10 +20,8 @@ process TRIM_GALORE {
     tuple val(meta), path("${meta.sample}*_val_1_fastqc.html"), path("${meta.sample}*_val_2_fastqc.html"), emit: fastqc_html
     tuple val(meta), path("${meta.sample}*_val_1_fastqc.zip"), path("${meta.sample}*_val_2_fastqc.zip"), emit: fastqc_zip
 
-    publishDir:
-    path {"Trim_galore/${meta.sample}" } 
-    mode 'link'
-
+    publishDir { "Trim_galore/${meta.sample}" }, mode: 'symlink'
+ 
     script:
     """
     trim_galore --stringency 10 --illumina --paired --fastqc --cores ${task.cpus} ${fastq1} ${fastq2}  
