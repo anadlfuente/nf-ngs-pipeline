@@ -2,6 +2,7 @@
 
 //include models
 include { TRIM_GALORE } from './modules/trim_galore.nf'
+include { STAR_TWOPASS_1 } from './modules/star_twopass_1.nf'
 
 workflow {
 
@@ -34,11 +35,11 @@ workflow {
     TRIM_GALORE(sample_channel, params.threads)
 
     // Run STAR for alignment
-    // STAR_TWOPASS_1(TRIM_GALORE.out.trim_fastqs,
-    //     file(params.refDir),
-    //     file(params.gtf),
-    //     val(params.threads)
-    // )
+    STAR_TWOPASS_1(TRIM_GALORE.out.trim_fastqs,
+        file(params.refDir),
+        file(params.gtf),
+        params.threads
+    )
 
     //Run STAR two pass genome generation
     // STAR_TWOPASS_GENOME(
