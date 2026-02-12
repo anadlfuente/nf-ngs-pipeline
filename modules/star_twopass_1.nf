@@ -17,9 +17,13 @@ process STAR_TWOPASS_1 {
     tuple val(meta), path("${meta.sample}.Log.progress.out"), emit: log_progress
     tuple val(meta), path("${meta.sample}._STARgenome"), emit: genome_dir
 
+    cpus { threads }
+
+    publishDir { "STAR/Pass1/${meta.sample}" }, mode: 'symlink'
+
     script:
     """
-	STAR --genomeLoad NoSharedMemory --genomeDir ${refDir} --readFilesCommand ${fastq1.toString().endsWith('.gz') ? 'zcat' : 'cat'} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${threads} --outSAMtype None --outFileNamePrefix ${meta.sample}. --outSAMstrandField intronMotif
+	STAR --genomeLoad NoSharedMemory --genomeDir ${refDir} --readFilesCommand ${fastq1.toString().endsWith('.gz') ? 'zcat' : 'cat'} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${task.cpus} --outSAMtype None --outFileNamePrefix ${meta.sample}. --outSAMstrandField intronMotif
 
     """
 }
