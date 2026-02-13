@@ -3,6 +3,7 @@
 //include models
 include { TRIM_GALORE } from './modules/trim_galore.nf'
 include { STAR_TWOPASS_1 } from './modules/star_twopass_1.nf'
+include { STAR_TWOPASS_GENOME } from './modules/star_twopass_genome.nf'
 
 workflow {
 
@@ -41,9 +42,10 @@ workflow {
         params.threads
     )
 
+    STAR_TWOPASS_1.out.sj_out.collect().set { all_sj_tabs }
     //Run STAR two pass genome generation
      STAR_TWOPASS_GENOME(
-        STAR_TWOPASS_1.out.sj_out.collect(),
+        all_sj_tabs,
         file(params.genome),
         file(params.gtf),
         params.read_length,
