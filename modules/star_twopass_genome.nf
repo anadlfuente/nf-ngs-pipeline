@@ -24,9 +24,9 @@ process STAR_TWOPASS_GENOME{
     cd twopass_genome
 
     ## Combine SJ,out.tab
-    cat ${sj_outs.join(' ')} | awk '($5>0 && $7>2 && $6==0)' | cut -f1-6 | sort | uniq > merged_SJ.out.tab
+    cat ${sj_outs.join(' ')} | awk '(\$5>0 && \$7>2 && \$6==0)' | cut -f1-6 | sort | uniq > merged_SJ.out.tab
 
-	STAR --runMode genomeGenerate --genomeDir twopass_genome --genomeFastaFiles ${genome} --sjdbGTFfile ${gtf} --runThreadN ${task.cpus} --sjdbOverhang $((${read_length}-1)) --sjdbFileChrStartEnd merged_SJ.out.tab 
+	STAR --runMode genomeGenerate --genomeDir twopass_genome --genomeFastaFiles ${genome} --sjdbGTFfile ${gtf} --runThreadN ${task.cpus} --sjdbOverhang \$((${read_length}-1)) --sjdbFileChrStartEnd merged_SJ.out.tab 
 
     """
 }
