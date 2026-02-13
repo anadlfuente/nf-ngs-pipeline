@@ -11,7 +11,7 @@ process STAR_TWOPASS_1 {
     val threads
 
     output:
-    tuple val(meta), path("${meta.sample}.SJ.out.tab"), emit: sj_out
+    path("${meta.sample}.SJ.out.tab"), emit: sj_out
     tuple val(meta), path("${meta.sample}.Log.final.out"), emit: log_final
     tuple val(meta), path("${meta.sample}.Log.out"), emit: log_out
     tuple val(meta), path("${meta.sample}.Log.progress.out"), emit: log_progress
