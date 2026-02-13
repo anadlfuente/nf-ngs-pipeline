@@ -42,13 +42,13 @@ workflow {
     )
 
     //Run STAR two pass genome generation
-    // STAR_TWOPASS_GENOME(
-    //     STAR_TWOPASS_1.out.sj_out.collect(),
-    //     file(params.genome),
-    //     file(params.gtf),
-    //     val(params.read_length),
-    //     val(params.threads),
-    // )
+     STAR_TWOPASS_GENOME(
+        STAR_TWOPASS_1.out.sj_out.collect(),
+        file(params.genome),
+        file(params.gtf),
+        params.read_length,
+        params.threads,
+    )
 
     // Run STAR for alignment
     // STAR_TWOPASS_2(
