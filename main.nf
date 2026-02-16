@@ -1,9 +1,10 @@
 #!/usr/bin/env nextflow
 
-//include models
+//include modules
 include { TRIM_GALORE } from './modules/trim_galore.nf'
 include { STAR_TWOPASS_1 } from './modules/star_twopass_1.nf'
 include { STAR_TWOPASS_GENOME } from './modules/star_twopass_genome.nf'
+include { STAR_TWOPASS_2 } from './modules/star_twopass_2.nf'
 
 workflow {
 
@@ -53,17 +54,16 @@ workflow {
     )
 
     // Run STAR for alignment
-    // STAR_TWOPASS_2(
-    //     TRIM_GALORE.out.trim_fastqs,
-    //     STAR_TWOPASS_GENOME.out.twopass_genome_dir
-    //     file(params.genome),
-    //     file(params.gtf),
-    //     val(params.read_length),
-    //     val(params.threads),
-    //     val(params.PL),
-    //     val(params.LB),
-    //     val(params.maxRAM)
-    // )
+     STAR_TWOPASS_2(
+        TRIM_GALORE.out.trim_fastqs,
+        STAR_TWOPASS_GENOME.out.twopass_genome_dir,
+        file(params.gtf),
+        params.read_length,
+        params.threads,
+        params.PL,
+        params.LB,
+        params.maxRAM
+    )
     // //Run RSeQC for calculate BAM stats
     // RSeQC_BamStats(
 
@@ -78,4 +78,4 @@ workflow {
     // MultiQC(
 
     // )
-   }
+}

@@ -5,7 +5,8 @@ process STAR_TWOPASS_2 {
     conda '/data/programs/mambaforge/envs/NGSalign'
 
     input:
-    tuple val(meta), path(fastq1), path(fastq2), path(genome_dir)
+    tuple val(meta), path(fastq1), path(fastq2)
+    path genome_dir
     path gtf
     val read_length
     val threads
@@ -23,26 +24,30 @@ process STAR_TWOPASS_2 {
     tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.bam.bai"), emit: bam_index
     tuple val(meta), path("${meta.sample}.ReadsPerGene.out.tab"), emit: reads_per_gene
 
+    cpus { threads }
+
+    publishDir { "STAR/Pass2/${meta.sample}" }, mode: 'symlink'
+
     script:
     """
     # Detect gz
     if [[ "${fastq1}" == *.gz ]]; then
-        read_cmd='zcat'
+        read_cmd="zcat"
     else
-        read_cmd='cat'
+        read_cmd="cat"
     fi
 
     # BAM header
     ID=${meta.sample}
     SM=${meta.sample}
-    PU=\$(${read_cmd} ${fastq1} | head -1 | sed 's/[:].*//' | sed 's/@//')
-    RG="@RG\\tID:${ID}\\tSM:${SM}\\tPL:${PL}\\tLB:${LB}\\tPU:${PU}"
-	RG2="ID:${ID} SM:${SM} PL:${PL} LB:${LB} PU:${PU}"
+    PU=\$(\${read_cmd} ${fastq1} | head -1 | sed 's/[:].*//' | sed 's/@//')
+    RG="@RG\\tID:\${ID}\\tSM:\${SM}\\tPL:${PL}\\tLB:${LB}\\tPU:\${PU}"
+	RG2="ID:\${ID} SM:\${SM} PL:${PL} LB:${LB} PU:\${PU}"
 
-    STAR --genomeLoad NoSharedMemory --limitBAMsortRAM ${maxRAM}00000000 --outSAMattrRGline ${RG2} --genomeDir ${genome_dir} --chimSegmentMin 12 --chimOutType Junctions WithinBAM  --readFilesCommand ${read_cmd} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${threads} --outFileNamePrefix ${meta.sample}. --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts  --limitSjdbInsertNsj 5000000 --outSAMunmapped Within --outFilterMultimapNmax 50 --outSAMstrandField intronMotif
+    STAR --genomeLoad NoSharedMemory --limitBAMsortRAM ${maxRAM}00000000 --outSAMattrRGline \${RG2} --genomeDir ${genome_dir} --chimSegmentMin 12 --chimOutType Junctions WithinBAM  --readFilesCommand \${read_cmd} --readFilesIn ${fastq1} ${fastq2} --sjdbGTFfile ${gtf} --runThreadN ${task.cpus} --outFileNamePrefix ${meta.sample}. --outSAMtype BAM SortedByCoordinate --quantMode GeneCounts  --limitSjdbInsertNsj 5000000 --outSAMunmapped Within --outFilterMultimapNmax 50 --outSAMstrandField intronMotif
 
     # Index BAM
-    samtools index -@ ${threads} ${meta.sample}.Aligned.sortedByCoord.out.bam
+    samtools index -@ ${task.cpus} ${meta.sample}.Aligned.sortedByCoord.out.bam
 
     """
 }
