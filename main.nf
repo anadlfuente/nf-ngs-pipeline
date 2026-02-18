@@ -14,19 +14,9 @@ include { RSeQC_readdistribution } from './modules/rseqc_readdist.nf'
 include { RSeQC_vainnerdistance } from './modules/rseqc_vainnerdist.nf'
 include { GET_STRANDNESS } from './modules/get_strandness.nf'
 include { HTSEQ_COUNT } from './modules/htseq_count.nf'
+include { MULTIQC } from './modules/multiqc.nf'
 
 workflow {
-
-    // take:
-    //     ch_fasta = Channel.value(params.genome)
-    //     ch_gtf = Channel.value(params.gtf)
-    //     ch_threads = Channel.value(params.threads)
-    //     ch_star_index = Channel.value(params.refDir)
-    //     ch_read_length = Channel.value(params.read_length)
-    //     ch_pass = Channel.value(params.pass)
-    //     ch_maxram = Channel.value(params.maxRAM)
-    //     ch_lb = Channel.value(params.LB)
-    //     ch_pl = Channel.value(params.PL)
 
     // Channel for input samples (prepare input for trimming)
     channel.fromPath(params.input_tsv)  // Create channel from input TSV
@@ -122,7 +112,7 @@ workflow {
     )
 
     // // Run MultiQC for aggregating QC results
-    // MultiQC(
-
-    // )
+    MULTIQC(
+    Channel.value(workflow.workDir)
+    )
 }
