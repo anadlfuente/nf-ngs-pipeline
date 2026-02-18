@@ -10,7 +10,10 @@ process RSeQC_readduplication {
 
     output:
     tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication_log.txt"), emit: log_readdup
-    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication.txt"), emit: readdup
+    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication.DupRate_plot.r"), emit: readdup_plotr
+    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication.DupRate_plot.pdf"), emit: readdup_plotpdf
+    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication.seq.DupRate.xls"), emit: readdup_seq
+    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.read_duplication.pos.DupRate.xls"), emit: readdup_pos
 
     publishDir { "RSeQC/${meta.sample}/" }, mode: 'symlink'
 

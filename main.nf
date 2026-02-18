@@ -12,6 +12,8 @@ include { RSeQC_junctionsaturation } from './modules/rseqc_juncsaturation.nf'
 include { RSeQC_readduplication } from './modules/rseqc_readdup.nf'
 include { RSeQC_readdistribution } from './modules/rseqc_readdist.nf'
 include { RSeQC_vainnerdistance } from './modules/rseqc_vainnerdist.nf'
+include { GET_STRANDNESS } from './modules/get_strandness.nf'
+include { HTSEQ_COUNT } from './modules/htseq_count.nf'
 
 workflow {
 
@@ -107,10 +109,17 @@ workflow {
          STAR_TWOPASS_2.out.bam,
          file(params.bed)
      )
+
+    // Get strandness of sample library
+    GET_STRANDNESS(
+        RSeQC_inferexperiment.out.infer_experiment
+    )
     // //Run HTSeq-Count for counting reads mapped to genes
-    // HTSeqCount(
-        
-    // )
+    HTSEQ_COUNT(
+        STAR_TWOPASS_2.out.bam,
+        GET_STRANDNESS.out.strandness,
+        file(params.gtf)
+    )
 
     // // Run MultiQC for aggregating QC results
     // MultiQC(
