@@ -1,35 +1,23 @@
 
 process RSeQC_inferexperiment {
-    tag "{meta.sample}"
+    tag "${meta.sample}"
 
     conda '/data/programs/mambaforge/envs/NGSalign'
 
     input:
     tuple val(meta), path(bam)
-    path gtf
-    val threads
+    path bed
 
     output:
-    tuple val(meta), path("${meta.sample}.SJ.out.tab"), emit: sj_out
     tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.infer_experiment_log.txt"), emit: log_infer
-    tuple val(meta), path("${meta.sample}.Log.out"), emit: log_out
-    tuple val(meta), path("${meta.sample}.Log.progress.out"), emit: log_progress
-    tuple val(meta), path("${meta.sample}._STARgenome"), emit: genome_dir
+    tuple val(meta), path("${meta.sample}.Aligned.sortedByCoord.out.infer_experiment.txt"), emit: infer_experiment
+
+    publishDir { "RSeQC/${meta.sample}/" }, mode: 'symlink'
 
     script:
     """
-    ## Prepare annotation bed
-	gtf_bed=${gtf%.gtf}.bed
-	if [ ! -f ${gtf_bed} ]; then
-		gtf2bed ${gtf} > ${gtf_bed}
-	fi
 
-    ## Create sample directory
-    mkdir -p ${meta.sample}
-    cd ${meta.sample}
-
-    check_intermediates RSeqC ${starDir}/${name}/${name}.Aligned.sortedByCoord.out.bam &
-	infer_experiment.py -i ${starDir}/${name}/${name}.Aligned.sortedByCoord.out.bam -r ${gtf_bed} > ${name}.Aligned.sortedByCoord.out.infer_experiment.txt 2> ${name}.Aligned.sortedByCoord.out.infer_experiment_log.txt
+	infer_experiment.py -i ${bam} -r ${bed} > ${meta.sample}.Aligned.sortedByCoord.out.infer_experiment.txt 2> ${meta.sample}.Aligned.sortedByCoord.out.infer_experiment_log.txt
 
     """
 }

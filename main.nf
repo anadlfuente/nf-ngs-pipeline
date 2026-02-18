@@ -5,6 +5,13 @@ include { TRIM_GALORE } from './modules/trim_galore.nf'
 include { STAR_TWOPASS_1 } from './modules/star_twopass_1.nf'
 include { STAR_TWOPASS_GENOME } from './modules/star_twopass_genome.nf'
 include { STAR_TWOPASS_2 } from './modules/star_twopass_2.nf'
+include { RSeQC_inferexperiment } from './modules/rseqc_inferexperiment.nf'
+include { RSeQC_junctionannotation } from './modules/rseqc_junctionann.nf'
+include { RSeQC_bamstat } from './modules/rseqc_bamstat.nf'
+include { RSeQC_junctionsaturation } from './modules/rseqc_juncsaturation.nf'
+include { RSeQC_readduplication } from './modules/rseqc_readdup.nf'
+include { RSeQC_readdistribution } from './modules/rseqc_readdist.nf'
+include { RSeQC_vainnerdistance } from './modules/rseqc_vainnerdist.nf'
 
 workflow {
 
@@ -64,11 +71,42 @@ workflow {
         params.LB,
         params.maxRAM
     )
+
     // //Run RSeQC for calculate BAM stats
-    // RSeQC_BamStats(
+     RSeQC_inferexperiment(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
 
-    // )
+     RSeQC_junctionannotation(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
 
+    RSeQC_bamstat(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
+
+    RSeQC_junctionsaturation(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
+
+    RSeQC_vainnerdistance(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
+
+    RSeQC_readdistribution(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
+
+    RSeQC_readduplication(
+         STAR_TWOPASS_2.out.bam,
+         file(params.bed)
+     )
     // //Run HTSeq-Count for counting reads mapped to genes
     // HTSeqCount(
         
